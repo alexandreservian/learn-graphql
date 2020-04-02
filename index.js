@@ -1,55 +1,35 @@
 const {ApolloServer, gql} = require('apollo-server');
+const {importSchema} = require('graphql-import');
+
+const perfis = [
+    {id: 1, nome: 'comum'},
+    {id: 2, nome: 'administrador'},
+]
 
 const usuarios = [
     {
         id: 1,
         nome: 'Bill Gates',
         email: 'billgates@gmail.com',
-        idade: 70
+        idade: 70,
+        perfil_id: 1
     },
     {
         id: 2,
         nome: 'Steve Jobs',
         email: 'stevejobs@gmail.com',
-        idade: 50
+        idade: 50,
+        perfil_id: 1
     },
     {
         id: 3,
         nome: 'Joe Armstrong',
         email: 'joearmstrong@gmail.com',
-        idade: 65
+        idade: 65,
+        perfil_id: 2
     }
 ]
 
-const typeDefs = gql`
-    scalar Date
-
-    type Produto {
-        nome: String!
-        preco: Float!
-        desconto: Float
-        precoComDesconto: Float
-    }
-
-    type Usuario {
-        id: Int
-        nome: String!
-        email: String!
-        idade: Int
-        salario: Float
-        vip: Boolean
-    }
-
-    type Query {
-        ola: String
-        horaAtual: Date
-        usuarioLogado: Usuario
-        produtoDestaque: Produto
-        numerosMegaSena: [Int!]!
-        usuarios: [Usuario!]!
-        usuario(id: Int): Usuario
-    }
-`;
 
 const resolvers = {
     Produto: {
@@ -60,6 +40,10 @@ const resolvers = {
     Usuario: {
         salario({salario_real}){
             return salario_real
+        },
+        perfil({perfil_id}) {
+            const perfil = perfis.find(({id: idPerfil}) => idPerfil===perfil_id);
+            return perfil ? perfil : null;
         }
     },
     Query: {
@@ -95,12 +79,19 @@ const resolvers = {
         usuario(_, {id}){
             const user = usuarios.find(({id: idUser}) => idUser===id);
             return user ? user : null;
-        }
+        },
+        perfis(){
+            return perfis
+        },
+        perfil(_, {id}){
+            const perfil = perfis.find(({id: idPerfil}) => idPerfil===id);
+            return perfil ? perfil : null;
+        },
     }
 }
 
 const server = new ApolloServer({
-    typeDefs,
+    typeDefs: importSchema('./schema/index.graphql'),
     resolvers
 })
 
