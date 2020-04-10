@@ -1,5 +1,5 @@
 const { v4 } = require('uuid');
-const { usuarios} = require('../data/db');
+const { usuarios} = require('../../data/db');
 
 const indiceUsuario = (filtro) => {
     if(!filtro) return -1
@@ -37,12 +37,12 @@ module.exports = {
         const excluidos = usuarios.splice(indexDeleted, 1);
         return excluidos ? excluidos[0] : null
     },
-    alterarUsuario(_, args){
-        const indexDeleted = usuarios.findIndex(({id: idUser}) => args.id===idUser);
+    alterarUsuario(_, {filtro, dados}){
+        const indexDeleted = indiceUsuario(filtro);
         if(indexDeleted < 0) return null;
         const usuario = {
             ...usuarios[indexDeleted],
-            ...args
+            ...dados
         }
         usuarios.splice(indexDeleted, 1, usuario);
         return usuario;
